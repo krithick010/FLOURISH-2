@@ -2,15 +2,34 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Heart, Users, Calendar, MessageCircle, Sparkles, Bot, TestTube, Menu, X, LogIn } from "lucide-react"
+import { Home, Heart, Users, Calendar, MessageCircle, Sparkles, TestTube, Menu, X, LogIn } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+
+// Custom Bot icon with animation
+const BotIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="3" y="8" width="18" height="12" rx="2" />
+    <path className="animate-pulse" d="M12 2v6" />
+    <path d="M8 14h.01M16 14h.01" />
+    <path className="animate-pulse" d="M9 18h6" />
+  </svg>
+)
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Wellness Tests", href: "/wellness-tests", icon: TestTube },
-  { name: "Cookie", href: "/chatbot", icon: Bot },
   { name: "Wellness Hub", href: "/wellness-hub", icon: Heart },
+  { name: "Talk to Our Chatbots", href: "/chatbots", icon: BotIcon },
   { name: "Find a Counselor", href: "/counselors", icon: Users },
   { name: "Book Appointment", href: "/appointments", icon: Calendar },
   { name: "Community Forum", href: "/forum", icon: MessageCircle },
@@ -36,6 +55,30 @@ export default function Sidebar() {
         <nav className="space-y-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href
+            const isChatbots = item.name === "Talk to Our Chatbots"
+            
+            if (isChatbots) {
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-emerald-100 text-emerald-700 shadow-sm border border-emerald-200"
+                      : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 border border-emerald-100"
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="relative">
+                    <item.icon className="w-5 h-5" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full"></span>
+                  </div>
+                  <span>{item.name}</span>
+                  {!isActive && <span className="ml-auto text-xs bg-emerald-200 text-emerald-700 px-1.5 py-0.5 rounded-full">New</span>}
+                </Link>
+              )
+            }
+            
             return (
               <Link
                 key={item.name}

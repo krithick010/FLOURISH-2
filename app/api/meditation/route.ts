@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const { mood, meditationType, duration } = await request.json()
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const prompt = `Create a personalized ${duration}-minute guided meditation script for a college student at SKCT who is feeling ${mood} and wants ${meditationType} meditation.
 
