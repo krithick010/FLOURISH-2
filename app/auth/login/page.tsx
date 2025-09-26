@@ -11,22 +11,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sparkles, ArrowRight } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("")
   const router = useRouter()
+  const { login } = useAuth()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Placeholder login logic - redirect to role-specific dashboard
-    if (role === "student") {
-      router.push("/dashboard/student")
-    } else if (role === "counsellor") {
-      router.push("/dashboard/counsellor")
-    } else if (role === "volunteer") {
-      router.push("/dashboard/volunteer")
+    
+    if (!role) {
+      alert("Please select your role")
+      return
+    }
+    
+    const success = await login(email, password, role)
+    if (success) {
+      // AuthProvider will handle the redirect
+    } else {
+      alert("Invalid credentials. Use password: password123")
     }
   }
 

@@ -1,6 +1,7 @@
 import type React from "react"
 import { Inter, Nunito } from "next/font/google"
 import "./globals.css"
+import { AuthProvider } from "@/components/auth/AuthProvider"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,7 +20,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${nunito.variable}`}>
-      <body className="font-sans bg-stone-50 text-stone-800 antialiased">{children}</body>
+      <body className="font-sans bg-stone-50 text-stone-800 antialiased">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   )
 }

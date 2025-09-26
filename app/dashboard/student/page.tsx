@@ -1,17 +1,52 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BookOpen, MessageCircle, Heart, Calendar, Users, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import { StudentNavbar } from "@/components/student/Navbar"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
 export default function StudentDashboard() {
-  return (
-    <div className="min-h-screen bg-stone-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-serif font-bold text-stone-800 mb-2">Welcome back to SKCT Wellness!</h1>
-          <p className="text-stone-600">Your personal wellness dashboard at Sri Krishna College of Technology</p>
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login')
+    } else if (!loading && user && user.role !== 'student') {
+      router.push('/auth/login')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
+          <p className="text-stone-600">Loading...</p>
         </div>
+      </div>
+    )
+  }
+
+  if (!user || user.role !== 'student') {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-stone-50">
+      <StudentNavbar />
+      <div className="p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-serif font-bold text-stone-800 mb-2">Welcome back to SKCT Wellness!</h1>
+            <p className="text-stone-600">Your personal wellness dashboard at Sri Krishna College of Technology</p>
+          </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -110,6 +145,7 @@ export default function StudentDashboard() {
               </Link>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>

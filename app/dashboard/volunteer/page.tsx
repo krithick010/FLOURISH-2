@@ -1,12 +1,47 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Shield, MessageCircle, Flag, Users, Eye, AlertTriangle } from "lucide-react"
 import Link from "next/link"
+import { VolunteerNavbar } from "@/components/volunteer/Navbar"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
 export default function VolunteerDashboard() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login')
+    } else if (!loading && user && user.role !== 'volunteer') {
+      router.push('/auth/login')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
+          <p className="text-stone-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user || user.role !== 'volunteer') {
+    return null
+  }
+
   return (
-    <div className="min-h-screen bg-stone-50 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-stone-50">
+      <VolunteerNavbar />
+      <div className="p-6">
+        <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-serif font-bold text-stone-800 mb-2">Volunteer Moderator Dashboard</h1>
@@ -106,6 +141,7 @@ export default function VolunteerDashboard() {
               <Button className="w-full bg-orange-600 hover:bg-orange-700">View Urgent</Button>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>

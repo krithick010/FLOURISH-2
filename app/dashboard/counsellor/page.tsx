@@ -4,10 +4,37 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { CounselorLayout } from "@/components/counselor/Layout"
 import { DashboardCard } from "@/components/counselor/DashboardCard"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { useEffect } from "react"
+import { Loader2 } from "lucide-react"
 import { Calendar, Users, FileText, TrendingUp, AlertCircle, MessageSquare, Clock } from "lucide-react"
 
 export default function CounsellorDashboard() {
   const router = useRouter()
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login')
+    } else if (!loading && user && user.role !== 'counsellor') {
+      router.push('/auth/login')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
+          <p className="text-stone-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user || user.role !== 'counsellor') {
+    return null
+  }
 
   return (
     <CounselorLayout>
