@@ -4,7 +4,15 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  NPM_FLAGS = "--prefer-offline --no-audit"
+  NPM_FLAGS = "--legacy-peer-deps"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# SPA fallback for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}
 
 [[headers]]
   for = "/*"

@@ -12,6 +12,9 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
+  // Add better build configuration for deployment
+  swcMinify: true,
+  reactStrictMode: false,
 }
 
 export default nextConfig

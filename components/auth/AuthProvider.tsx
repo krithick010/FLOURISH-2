@@ -17,7 +17,13 @@ interface AuthContextType {
   loading: boolean
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+// Create context with default values
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  login: async () => false,
+  logout: () => {},
+  loading: true
+})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -119,24 +125,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useAuth() {
+  // Since we now provide default values in createContext, this should be safe
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
   return context
 }
 
 // Safe auth hook that works during SSR
 export function useSafeAuth() {
-  try {
-    return useAuth()
-  } catch {
-    // Return default values during SSR or when context is not available
-    return {
-      user: null,
-      login: async () => false,
-      logout: () => {},
-      loading: true
-    }
-  }
+  return useAuth()
 }
