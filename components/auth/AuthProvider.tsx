@@ -22,35 +22,51 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
+  // Track if component is mounted on client
   useEffect(() => {
-    // Check if user is logged in (from localStorage)
-    const savedUser = localStorage.getItem('skct-user')
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-    }
-    setLoading(false)
+    setIsMounted(true)
   }, [])
 
   useEffect(() => {
-    // Redirect logic
-    if (!loading) {
-      const isAuthPage = pathname.startsWith('/auth/')
-      const isPublicPage = pathname === '/' || pathname.startsWith('/wellness-hub') || pathname.startsWith('/counselors') || pathname.startsWith('/forum')
-      
-      if (!user && !isAuthPage && !isPublicPage) {
-        // Not logged in and trying to access protected route
-        router.push('/auth/login')
-      } else if (user && isAuthPage) {
-        // Already logged in but on auth page, redirect to dashboard
-        router.push(`/dashboard/${user.role}`)
+    // Only run on client after mount
+    if (!isMounted) return
+
+    try {
+      // Check if user is logged in (from localStorage)
+      const savedUser = localStorage.getItem('skct-user')
+      if (savedUser) {
+        setUser(JSON.parse(savedUser))
       }
+    } catch (error) {
+      console.error('Error reading localStorage:', error)
+      localStorage.removeItem('skct-user')
     }
-  }, [user, loading, pathname, router])
+    setLoading(false)
+  }, [isMounted])
+
+  useEffect(() => {
+    // Only run redirect logic on client after mount and load
+    if (!isMounted || loading) return
+
+    const isAuthPage = pathname.startsWith('/auth/')
+    const isPublicPage = pathname === '/' || pathname.startsWith('/wellness-hub') || pathname.startsWith('/counselors') || pathname.startsWith('/forum')
+    
+    if (!user && !isAuthPage && !isPublicPage) {
+      // Not logged in and trying to access protected route
+      router.push('/auth/login')
+    } else if (user && isAuthPage) {
+      // Already logged in but on auth page, redirect to dashboard
+      router.push(`/dashboard/${user.role}`)
+    }
+  }, [user, loading, pathname, router, isMounted])
 
   const login = async (email: string, password: string, role: string): Promise<boolean> => {
+    if (!isMounted) return false
+    
     setLoading(true)
     
     // Mock authentication - in real app, this would call your API
@@ -65,7 +81,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setUser(userData)
-      localStorage.setItem('skct-user', JSON.stringify(userData))
+      try {
+        localStorage.setItem('skct-user', JSON.stringify(userData))
+      } catch (error) {
+        console.error('Error saving to localStorage:', error)
+      }
       setLoading(false)
       return true
     }
@@ -76,8 +96,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('skct-user')
+    if (isMounted) {
+      try {
+        localStorage.removeItem('skct-user')
+      } catch (error) {
+        console.error('Error removing from localStorage:', error)
+      }
+    }
     router.push('/auth/login')
+  }
+
+  // Don't render children until mounted on client
+  if (!isMounted) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
 
   return (
@@ -93,4 +124,19 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
+}
+
+// Safe auth hook that works during SSR
+export function useSafeAuth() {
+  try {
+    return useAuth()
+  } catch {
+    // Return default values during SSR or when context is not available
+    return {
+      user: null,
+      login: async () => false,
+      logout: () => {},
+      loading: true
+    }
+  }
 }
