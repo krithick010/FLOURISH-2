@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  distDir: 'dist',
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -9,6 +11,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  basePath: '',
+  assetPrefix: '',
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
@@ -18,10 +22,6 @@ const nextConfig = {
   // Force static generation for all pages
   trailingSlash: true,
   // Better error handling during build
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
 }
 
 export default nextConfig

@@ -7,9 +7,11 @@ export async function POST(request: NextRequest) {
   try {
     const { message, botId } = await request.json();
 
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'Gemini API key not configured' },
+        { response: "I'm currently in demo mode. To enable full AI functionality, please configure the Gemini API key in your environment variables." },
         { status: 500 }
       );
     }

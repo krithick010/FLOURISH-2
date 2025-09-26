@@ -61,15 +61,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Only run redirect logic on client after mount and load
     if (!isMounted || loading) return
 
-    const isAuthPage = pathname.startsWith('/auth/')
-    const isPublicPage = pathname === '/' || pathname.startsWith('/wellness-hub') || pathname.startsWith('/counselors') || pathname.startsWith('/forum')
+    const isAuthPage = pathname?.startsWith('/auth/') || false
+    const isPublicPage = pathname === '/' || pathname?.startsWith('/wellness-hub') || pathname?.startsWith('/counselors') || pathname?.startsWith('/forum') || false
     
     if (!user && !isAuthPage && !isPublicPage) {
       // Not logged in and trying to access protected route
-      router.push('/auth/login')
+      router?.push('/auth/login')
     } else if (user && isAuthPage) {
       // Already logged in but on auth page, redirect to dashboard
-      router.push(`/dashboard/${user.role}`)
+      router?.push(`/dashboard/${user.role}`)
     }
   }, [user, loading, pathname, router, isMounted])
 

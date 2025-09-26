@@ -46,5 +46,7 @@ export default function RootLayout({
 }
 
 export const metadata = {
-      generator: 'v0.app'
-    };
+  title: 'SKCT Wellness Platform',
+  description: 'Mental health and wellness platform for Sri Krishna College of Technology students',
+  generator: 'Next.js'
+};

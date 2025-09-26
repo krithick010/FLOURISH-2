@@ -7,6 +7,17 @@ export async function POST(request: NextRequest) {
   try {
     const { mood, meditationType, duration } = await request.json()
 
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      return NextResponse.json({
+        script: `Welcome to your ${duration}-minute meditation session. Please sit comfortably and close your eyes. Take a deep breath in... and slowly exhale. This is a demo meditation script. To enable AI-generated personalized meditations, please configure your Gemini API key.`,
+        mood,
+        meditationType,
+        duration
+      })
+    }
+
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const prompt = `Create a personalized ${duration}-minute guided meditation script for a college student at SKCT who is feeling ${mood} and wants ${meditationType} meditation.
