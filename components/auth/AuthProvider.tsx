@@ -17,13 +17,8 @@ interface AuthContextType {
   loading: boolean
 }
 
-// Create context with default values
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  login: async () => false,
-  logout: () => {},
-  loading: true
-})
+// Create context with default values that are safe for SSR
+const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -117,20 +112,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
 
+  const contextValue: AuthContextType = {
+    user,
+    login,
+    logout,
+    loading
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export function useAuth() {
-  // Since we now provide default values in createContext, this should be safe
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext)
+  
+  // Return safe defaults during SSR or when context is not available
+  if (!context) {
+    return {
+      user: null,
+      login: async () => false,
+      logout: () => {},
+      loading: true
+    }
+  }
+  
   return context
 }
 
 // Safe auth hook that works during SSR
 export function useSafeAuth() {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return {
+      user: null,
+      login: async () => false,
+      logout: () => {},
+      loading: true
+    }
+  }
+  
   return useAuth()
 }
